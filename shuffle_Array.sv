@@ -11,7 +11,7 @@ module shuffle_array(
 	logic [7:0] i, j;															   		// loop counters
 	logic [23:0] read_i, read_j;														// variables to store s[i] and s[j]
 	logic [23:0] secret_key;															// variable to store SW into secret key
-	logic [1:0] state, next_state;
+	logic [4:0] state, next_state;
 	logic [7:0] key_byte;																// variable to store current byte beign processed
 	
 	parameter start 		= 4'b0000;

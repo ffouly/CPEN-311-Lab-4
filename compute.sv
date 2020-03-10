@@ -15,7 +15,7 @@ module compute (
 						
 	logic [7:0] i, j, k;													   			// loop counters 
 	logic [7:0]	f;																			// temporary variable to assist swap operation
-	logic [1:0] state, next_state;
+	logic [4:0] state, next_state;
 	logic [23:0] read_i, read_j;
 	logic [7:0] out_dec, read_en;
 	

@@ -28,8 +28,9 @@ module Master(
 		parameter wait_comp		= 3'b011;
 		parameter finish			= 3'b100;
 		
-		logic [1:0] state, next_state;
-		logic [7:0]	addr_sel, data_sel, wren_sel;
+		logic [2:0] state, next_state;
+		logic [7:0]	addr_sel, data_sel;
+		logic wren_sel;
 		
 		initial begin 
 		
