@@ -1,36 +1,46 @@
 module compute (
 						input logic 				clk,
 						input logic 				start_comp, 
-						input logic 	[31:0] 	encrypted_input, 
-						input logic 	[23:0] 	s, 
+						input logic 	[7:0] 	encrypted_input, 
+						input logic 	[7:0] 	s, 
+						input logic 	[7:0] 	q_m, 
 						output logic	[7:0]		address,
+						output logic	[7:0]		address_m,
+						output logic	[7:0]		address_d,
 						output logic 				wren,
+						output logic 				wren_d,
 						output logic 	[7:0]		write_val,
-						output logic 	[31:0] 	decrypted_output,
+						output logic 	[7:0] 	data_d,
 						output logic				comp_finish);
 						
 	logic [7:0] i, j, k;													   			// loop counters 
 	logic [7:0]	f;																			// temporary variable to assist swap operation
 	logic [1:0] state, next_state;
 	logic [23:0] read_i, read_j;
+	logic [7:0] out_dec, read_en;
 	
-	parameter start 		= 4'b0000;
-	parameter mem_read 	= 4'b0001;
-	parameter readi		= 4'b0010;
-	parameter sum_j		= 4'b0011;
-	parameter wait_j  	= 4'b0100;
-	parameter readj		= 4'b0101;
-	parameter writei 	   = 4'b0110;
-	parameter writej		= 4'b0111;
-	parameter dec_out 	= 4'b1000;
-	parameter check_32 	= 4'b1001;
-	parameter finish		= 4'b1011;
+	parameter start 		= 5'b00000;
+	parameter mem_read 	= 5'b00001;
+	parameter readi		= 5'b00010;
+	parameter sum_j		= 5'b00011;
+	parameter wait_j  	= 5'b00100;
+	parameter readj		= 5'b00101;
+	parameter writei 	   = 5'b00110;
+	parameter writej		= 5'b10000;
+	parameter wait_enc	= 5'b00111;
+	parameter read_enc	= 5'b01000;
+	parameter dec_out 	= 5'b01001;
+	parameter write_dec	= 5'b01011;
+	parameter check_32 	= 5'b01100;
+	parameter finish		= 5'b01101;
 	
 	initial begin 
 		i = 0; 
 		j = 0;
 		k = 0;
 		comp_finish = 0;
+		wren = 1'b0; 
+		wren_d = 1'b0;
 	end
 	
 	logic [31:0] secret_key;															// variable to store SW into secret key
@@ -81,17 +91,35 @@ module compute (
 								wren <= 1'b1;
 								write_val <= readj;
 								address <= i;		
-								next_state = dec_out;
+								next_state = wait_enc;
 							end 
+							
+			wait_enc:	begin	
+								wren <= 1'b0;
+								address_m <= k;
+								next_state <= read_enc;
+							end
+							
+			read_enc:	begin 
+								read_en <= q_m;
+								next_state <= dec_out;
+							end
 							
 			dec_out:		begin 
 								f <= s[(s[i]+s[j])];
-								decrypted_output[k] <= f ^ encrypted_input[k];
-								next_state <= check_32;									// checking for 32 counts
+								out_dec <= f ^ read_en;
+								next_state <= write_dec;									// checking for 32 counts
 							end 
 							
-							
+			write_dec:	begin 
+								wren_d <= 1'b1;
+								address_d <= k;
+								data_d <= out_dec;
+								next_state <= check_32;
+							end
+								
 			check_32:	begin 
+								wren_d <= 1'b0;
 								if(i < 32'd32) next_state <= mem_read;				// for k = 0 to message_length-1 {...}
 								else next_state <= finish;								// once 256 counts reached, we go to finish
 								wren = 1'b0;

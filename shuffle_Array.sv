@@ -1,13 +1,11 @@
 module shuffle_array(
 							input logic 				clk,
 							input logic					start_shuffle,
-							input logic 	[31:0] 	encrypted_input, 
-							input logic 	[23:0]	s, 
+							input logic 	[7:0]		s, 
 							input logic 	[9:0] 	SW, 
 							output logic 				wren,
 							output logic 	[7:0]		write_val,
 							output logic 	[7:0] 	address, 
-							output logic 	[31:0] 	decrypted_output,
 							output logic 				shuffle_finish);
 
 	logic [7:0] i, j;															   		// loop counters
