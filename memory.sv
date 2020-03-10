@@ -2,7 +2,7 @@
 module memory(output [7:0] data_out, output [7:0] address_out, output logic write_enable, output logic done, input clk, input reset, input en);
 
 //Internal counter
-logic [7:0] i = 8'b0; 
+logic [7:0] i; 
 
 always @(posedge clk, posedge reset) begin
 
